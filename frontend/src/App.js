@@ -34,6 +34,8 @@ function App() {
           <Route path="/admin" element={<AdminLayout />}>
             <Route path="dashboard" element={<Dashboard />} />
             <Route path="products" element={<AdminProducts />} />
+            <Route path="products/new" element={<ProductForm />} />
+            <Route path="products/edit/:id" element={<ProductForm />} />
             <Route path="orders" element={<AdminOrders />} />
             <Route path="contacts" element={<AdminContacts />} />
           </Route>
