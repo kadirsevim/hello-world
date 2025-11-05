@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { CreditCard, Truck, CheckCircle } from 'lucide-react';
 import { getCartFromStorage, getCartTotal, clearCart } from '../mock';
+import { createOrder } from '../services/api';
 import { toast } from '../hooks/use-toast';
 
 const Checkout = () => {
