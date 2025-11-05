@@ -1,12 +1,45 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Calendar, Clock, User, ArrowLeft, ArrowRight } from 'lucide-react';
-import { blogPosts } from '../mock';
+import { getBlogPostBySlug, getBlogPosts } from '../services/api';
 
 const BlogDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const post = blogPosts.find(p => p.slug === slug);
+  const [post, setPost] = useState(null);
+  const [relatedPosts, setRelatedPosts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchPost();
+  }, [slug]);
+
+  const fetchPost = async () => {
+    try {
+      setLoading(true);
+      const postData = await getBlogPostBySlug(slug);
+      setPost(postData);
+
+      const allPosts = await getBlogPosts();
+      const related = allPosts.filter(p => p.id !== postData.id).slice(0, 3);
+      setRelatedPosts(related);
+    } catch (error) {
+      console.error('Error fetching blog post:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   if (!post) {
     return (
