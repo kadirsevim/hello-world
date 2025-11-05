@@ -193,8 +193,9 @@ const Home = () => {
                   </div>
                 </div>
               </Link>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
 
           <div className="text-center mt-12 md:hidden">
             <Link
