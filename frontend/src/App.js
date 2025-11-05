@@ -20,6 +20,7 @@ import AdminLogin from './pages/admin/AdminLogin';
 import AdminLayout from './components/AdminLayout';
 import Dashboard from './pages/admin/Dashboard';
 import AdminProducts from './pages/admin/Products';
+import ProductForm from './pages/admin/ProductForm';
 import AdminOrders from './pages/admin/Orders';
 import AdminContacts from './pages/admin/Contacts';
 
