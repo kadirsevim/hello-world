@@ -40,22 +40,54 @@ const Checkout = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Simulate order processing
-    toast({
-      title: "Sipariş Alındı!",
-      description: "Siparişiniz başarıyla oluşturuldu. Teşekkür ederiz!",
-    });
+    try {
+      // Prepare order data
+      const orderData = {
+        first_name: formData.firstName,
+        last_name: formData.lastName,
+        email: formData.email,
+        phone: formData.phone,
+        address: formData.address,
+        city: formData.city,
+        zip_code: formData.zipCode,
+        payment_method: formData.paymentMethod,
+        items: cart.map(item => ({
+          product_id: item.id,
+          product_name: item.name,
+          quantity: item.quantity,
+          price: item.price
+        })),
+        subtotal: subtotal,
+        tax: tax,
+        shipping: shipping,
+        total: total
+      };
 
-    // Clear cart and redirect
-    clearCart();
-    window.dispatchEvent(new Event('cartUpdated'));
-    
-    setTimeout(() => {
-      navigate('/');
-    }, 2000);
+      // Create order via API
+      await createOrder(orderData);
+
+      toast({
+        title: "Sipariş Alındı!",
+        description: "Siparişiniz başarıyla oluşturuldu. Teşekkür ederiz!",
+      });
+
+      // Clear cart and redirect
+      clearCart();
+      window.dispatchEvent(new Event('cartUpdated'));
+      
+      setTimeout(() => {
+        navigate('/');
+      }, 2000);
+    } catch (error) {
+      console.error('Error creating order:', error);
+      toast({
+        title: "Hata",
+        description: "Sipariş oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.",
+      });
+    }
   };
 
   return (
