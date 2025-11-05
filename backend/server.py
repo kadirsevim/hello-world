@@ -22,6 +22,13 @@ app.include_router(projects.router)
 app.include_router(orders.router)
 app.include_router(contact.router)
 
+# Admin routers
+app.include_router(admin_auth.router)
+app.include_router(admin_dashboard.router)
+app.include_router(admin_products.router)
+app.include_router(admin_orders.router)
+app.include_router(admin_contacts.router)
+
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
