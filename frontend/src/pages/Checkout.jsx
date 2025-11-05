@@ -56,9 +56,20 @@ const Checkout = () => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setProcessing(true);
     
     try {
-      // Prepare order data
+      // Validate card data
+      if (!cardData.cardNumber || !cardData.expiryMonth || !cardData.expiryYear || !cardData.cvc) {
+        toast({
+          title: "Eksik Bilgi",
+          description: "Lütfen tüm kart bilgilerini doldurun.",
+        });
+        setProcessing(false);
+        return;
+      }
+
+      // Create order first
       const orderData = {
         first_name: formData.firstName,
         last_name: formData.lastName,
@@ -67,7 +78,7 @@ const Checkout = () => {
         address: formData.address,
         city: formData.city,
         zip_code: formData.zipCode,
-        payment_method: formData.paymentMethod,
+        payment_method: 'credit-card',
         items: cart.map(item => ({
           product_id: item.id,
           product_name: item.name,
@@ -80,28 +91,122 @@ const Checkout = () => {
         total: total
       };
 
-      // Create order via API
-      await createOrder(orderData);
-
-      toast({
-        title: "Sipariş Alındı!",
-        description: "Siparişiniz başarıyla oluşturuldu. Teşekkür ederiz!",
-      });
-
-      // Clear cart and redirect
-      clearCart();
-      window.dispatchEvent(new Event('cartUpdated'));
+      const orderResponse = await createOrder(orderData);
       
-      setTimeout(() => {
-        navigate('/');
-      }, 2000);
+      // Process payment
+      const paymentData = {
+        order_id: orderResponse.id,
+        customer_name: `${formData.firstName} ${formData.lastName}`,
+        customer_email: formData.email,
+        customer_phone: formData.phone,
+        customer_address: formData.address,
+        customer_city: formData.city,
+        customer_zip_code: formData.zipCode,
+        card_holder_name: cardData.cardHolderName,
+        card_number: cardData.cardNumber.replace(/\s/g, ''),
+        expiry_month: cardData.expiryMonth,
+        expiry_year: cardData.expiryYear,
+        cvc: cardData.cvc,
+        items: cart.map(item => ({
+          id: item.id,
+          name: item.name,
+          price: item.price,
+          quantity: item.quantity
+        })),
+        total_amount: total
+      };
+
+      const paymentResponse = await axios.post(
+        `${BACKEND_URL}/api/payment/process`,
+        paymentData
+      );
+
+      if (paymentResponse.data.status === 'success') {
+        toast({
+          title: "Ödeme Başarılı!",
+          description: "Siparişiniz başarıyla oluşturuldu. Teşekkür ederiz!",
+        });
+
+        // Clear cart and redirect
+        clearCart();
+        window.dispatchEvent(new Event('cartUpdated'));
+        
+        setTimeout(() => {
+          navigate('/');
+        }, 2000);
+      } else {
+        toast({
+          title: "Ödeme Başarısız",
+          description: paymentResponse.data.message || "Ödeme işlemi başarısız oldu.",
+        });
+      }
+      
     } catch (error) {
-      console.error('Error creating order:', error);
+      console.error('Error processing payment:', error);
       toast({
         title: "Hata",
-        description: "Sipariş oluşturulurken bir hata oluştu. Lütfen tekrar deneyin.",
+        description: "Ödeme işlemi sırasında bir hata oluştu. Lütfen tekrar deneyin.",
+      });
+    } finally {
+      setProcessing(false);
+    }
+  };
+  
+  const handleCardInputChange = (e) => {
+    let value = e.target.value;
+    const name = e.target.name;
+    
+    // Format card number with spaces
+    if (name === 'cardNumber') {
+      value = value.replace(/\s/g, '').replace(/(\d{4})/g, '$1 ').trim();
+      if (value.length > 19) value = value.slice(0, 19);
+    }
+    
+    // Limit expiry month to 2 digits
+    if (name === 'expiryMonth') {
+      value = value.replace(/\D/g, '').slice(0, 2);
+      if (parseInt(value) > 12) value = '12';
+    }
+    
+    // Limit expiry year to 4 digits
+    if (name === 'expiryYear') {
+      value = value.replace(/\D/g, '').slice(0, 4);
+    }
+    
+    // Limit CVC to 3 digits
+    if (name === 'cvc') {
+      value = value.replace(/\D/g, '').slice(0, 3);
+    }
+    
+    setCardData({
+      ...cardData,
+      [name]: value
+    });
+  };
+  
+  const useTestCard = (type) => {
+    if (type === 'success') {
+      setCardData({
+        cardHolderName: 'TEST USER',
+        cardNumber: '5528 7900 0000 0008',
+        expiryMonth: '12',
+        expiryYear: '2030',
+        cvc: '123'
+      });
+    } else {
+      setCardData({
+        cardHolderName: 'TEST USER',
+        cardNumber: '4111 1111 1111 1129',
+        expiryMonth: '12',
+        expiryYear: '2030',
+        cvc: '123'
       });
     }
+    setShowTestCards(false);
+    toast({
+      title: "Test Kartı Seçildi",
+      description: type === 'success' ? "Başarılı test kartı yüklendi" : "Başarısız test kartı yüklendi",
+    });
   };
 
   return (
