@@ -1,10 +1,27 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Shield, Clock, Award, Users, ArrowRight, CheckCircle, Star } from 'lucide-react';
-import { products, services, testimonials } from '../mock';
+import { getProducts } from '../services/api';
+import { services, testimonials } from '../mock';
 
 const Home = () => {
-  const featuredProducts = products.slice(0, 4);
+  const [featuredProducts, setFeaturedProducts] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    fetchProducts();
+  }, []);
+
+  const fetchProducts = async () => {
+    try {
+      const productsData = await getProducts();
+      setFeaturedProducts(productsData.slice(0, 4));
+    } catch (error) {
+      console.error('Error fetching products:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="min-h-screen">
