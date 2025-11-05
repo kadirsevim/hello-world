@@ -20,6 +20,17 @@ const Checkout = () => {
     zipCode: '',
     paymentMethod: 'credit-card'
   });
+  
+  const [cardData, setCardData] = useState({
+    cardHolderName: '',
+    cardNumber: '',
+    expiryMonth: '',
+    expiryYear: '',
+    cvc: ''
+  });
+  
+  const [processing, setProcessing] = useState(false);
+  const [showTestCards, setShowTestCards] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
