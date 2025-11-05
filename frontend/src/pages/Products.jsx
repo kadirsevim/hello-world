@@ -1,22 +1,54 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Star, ShoppingCart, Search, SlidersHorizontal } from 'lucide-react';
-import { products, categories, addToCart } from '../mock';
+import { getProducts, getCategories } from '../services/api';
+import { addToCart } from '../mock';
 import { toast } from '../hooks/use-toast';
 
 const Products = () => {
   const [searchParams] = useSearchParams();
-  const [filteredProducts, setFilteredProducts] = useState(products);
+  const [products, setProducts] = useState([]);
+  const [filteredProducts, setFilteredProducts] = useState([]);
+  const [categories, setCategories] = useState([]);
   const [selectedCategory, setSelectedCategory] = useState(searchParams.get('category') || 'all');
   const [searchTerm, setSearchTerm] = useState('');
   const [sortBy, setSortBy] = useState('name');
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    fetchData();
+  }, []);
+
+  useEffect(() => {
+    filterAndSortProducts();
+  }, [products, selectedCategory, searchTerm, sortBy]);
+
+  const fetchData = async () => {
+    try {
+      setLoading(true);
+      const [productsData, categoriesData] = await Promise.all([
+        getProducts(),
+        getCategories()
+      ]);
+      setProducts(productsData);
+      setCategories(categoriesData);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      toast({
+        title: "Hata",
+        description: "Veriler yüklenirken bir hata oluştu.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const filterAndSortProducts = () => {
     let filtered = [...products];
 
     // Filter by category
     if (selectedCategory !== 'all') {
-      filtered = filtered.filter(p => p.categoryId === parseInt(selectedCategory));
+      filtered = filtered.filter(p => p.category_id === parseInt(selectedCategory));
     }
 
     // Filter by search term
@@ -36,7 +68,7 @@ const Products = () => {
     });
 
     setFilteredProducts(filtered);
-  }, [selectedCategory, searchTerm, sortBy]);
+  };
 
   const handleAddToCart = (product, e) => {
     e.preventDefault();
@@ -47,6 +79,17 @@ const Products = () => {
       description: `${product.name} sepetinize eklendi.`,
     });
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-20">

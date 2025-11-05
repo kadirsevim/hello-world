@@ -1,31 +1,44 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, Link, useNavigate } from 'react-router-dom';
 import { Star, ShoppingCart, CheckCircle, ArrowLeft, Plus, Minus } from 'lucide-react';
-import { products, addToCart } from '../mock';
+import { getProductBySlug, getProducts } from '../services/api';
+import { addToCart } from '../mock';
 import { toast } from '../hooks/use-toast';
 
 const ProductDetail = () => {
   const { slug } = useParams();
   const navigate = useNavigate();
-  const product = products.find(p => p.slug === slug);
+  const [product, setProduct] = useState(null);
+  const [relatedProducts, setRelatedProducts] = useState([]);
   const [quantity, setQuantity] = useState(1);
+  const [loading, setLoading] = useState(true);
 
-  if (!product) {
-    return (
-      <div className="min-h-screen bg-gray-50 pt-24 pb-20">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <h1 className="text-3xl font-bold text-gray-900 mb-4">Ürün Bulunamadı</h1>
-          <Link to="/products" className="text-red-600 hover:text-red-700">
-            Ürünlere Dön
-          </Link>
-        </div>
-      </div>
-    );
-  }
+  useEffect(() => {
+    fetchProduct();
+  }, [slug]);
 
-  const relatedProducts = products
-    .filter(p => p.categoryId === product.categoryId && p.id !== product.id)
-    .slice(0, 4);
+  const fetchProduct = async () => {
+    try {
+      setLoading(true);
+      const productData = await getProductBySlug(slug);
+      setProduct(productData);
+
+      // Fetch related products
+      const allProducts = await getProducts();
+      const related = allProducts
+        .filter(p => p.category_id === productData.category_id && p.id !== productData.id)
+        .slice(0, 4);
+      setRelatedProducts(related);
+    } catch (error) {
+      console.error('Error fetching product:', error);
+      toast({
+        title: "Hata",
+        description: "Ürün yüklenirken bir hata oluştu.",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
@@ -41,6 +54,30 @@ const ProductDetail = () => {
     window.dispatchEvent(new Event('cartUpdated'));
     navigate('/cart');
   };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-20 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-16 w-16 border-b-2 border-red-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Yükleniyor...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!product) {
+    return (
+      <div className="min-h-screen bg-gray-50 pt-24 pb-20">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+          <h1 className="text-3xl font-bold text-gray-900 mb-4">Ürün Bulunamadı</h1>
+          <Link to="/products" className="text-red-600 hover:text-red-700">
+            Ürünlere Dön
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-20">
