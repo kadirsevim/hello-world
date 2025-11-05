@@ -307,40 +307,121 @@ const Checkout = () => {
 
               {/* Payment Method */}
               <div className="bg-white rounded-xl shadow-lg p-8">
-                <div className="flex items-center mb-6">
-                  <CreditCard className="h-6 w-6 text-red-600 mr-3" />
-                  <h2 className="text-2xl font-bold text-gray-900">Ödeme Yöntemi</h2>
-                </div>
-                <div className="space-y-4">
-                  <div className="flex items-center p-4 border-2 border-red-600 rounded-lg bg-red-50">
-                    <input
-                      type="radio"
-                      id="credit-card"
-                      name="paymentMethod"
-                      value="credit-card"
-                      checked={formData.paymentMethod === 'credit-card'}
-                      onChange={handleInputChange}
-                      className="w-4 h-4 text-red-600"
-                    />
-                    <label htmlFor="credit-card" className="ml-3 flex-1">
-                      <div className="font-semibold text-gray-900">Kredi Kartı</div>
-                      <div className="text-sm text-gray-600">Güvenli ödeme - Ödeme entegrasyonu yakında eklenecek</div>
-                    </label>
+                <div className="flex items-center justify-between mb-6">
+                  <div className="flex items-center">
+                    <CreditCard className="h-6 w-6 text-red-600 mr-3" />
+                    <h2 className="text-2xl font-bold text-gray-900">Kredi Kartı Bilgileri</h2>
                   </div>
-                  <div className="flex items-center p-4 border-2 border-gray-300 rounded-lg">
+                  <button
+                    type="button"
+                    onClick={() => setShowTestCards(!showTestCards)}
+                    className="text-sm text-blue-600 hover:text-blue-700 font-medium"
+                  >
+                    Test Kartları
+                  </button>
+                </div>
+                
+                {showTestCards && (
+                  <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+                    <p className="text-sm font-semibold text-blue-900 mb-3">Test Kartlarını Kullan:</p>
+                    <div className="space-y-2">
+                      <button
+                        type="button"
+                        onClick={() => useTestCard('success')}
+                        className="w-full text-left p-3 bg-white rounded-lg hover:bg-green-50 border border-green-300 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-semibold text-green-700">✓ Başarılı Ödeme</p>
+                            <p className="text-sm text-gray-600">5528 7900 0000 0008</p>
+                          </div>
+                          <CheckCircle className="h-5 w-5 text-green-600" />
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => useTestCard('failure')}
+                        className="w-full text-left p-3 bg-white rounded-lg hover:bg-red-50 border border-red-300 transition-colors"
+                      >
+                        <div className="flex items-center justify-between">
+                          <div>
+                            <p className="font-semibold text-red-700">✗ Başarısız Ödeme</p>
+                            <p className="text-sm text-gray-600">4111 1111 1111 1129</p>
+                          </div>
+                          <AlertCircle className="h-5 w-5 text-red-600" />
+                        </div>
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Kart Üzerindeki İsim</label>
                     <input
-                      type="radio"
-                      id="bank-transfer"
-                      name="paymentMethod"
-                      value="bank-transfer"
-                      checked={formData.paymentMethod === 'bank-transfer'}
-                      onChange={handleInputChange}
-                      className="w-4 h-4 text-red-600"
+                      type="text"
+                      name="cardHolderName"
+                      value={cardData.cardHolderName}
+                      onChange={handleCardInputChange}
+                      required
+                      placeholder="AD SOYAD"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200 uppercase"
                     />
-                    <label htmlFor="bank-transfer" className="ml-3 flex-1">
-                      <div className="font-semibold text-gray-900">Banka Havalesi</div>
-                      <div className="text-sm text-gray-600">Havale bilgileri mail ile gönderilecek</div>
-                    </label>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-semibold text-gray-700 mb-2">Kart Numarası</label>
+                    <input
+                      type="text"
+                      name="cardNumber"
+                      value={cardData.cardNumber}
+                      onChange={handleCardInputChange}
+                      required
+                      placeholder="0000 0000 0000 0000"
+                      className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                    />
+                  </div>
+
+                  <div className="grid grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Ay</label>
+                      <input
+                        type="text"
+                        name="expiryMonth"
+                        value={cardData.expiryMonth}
+                        onChange={handleCardInputChange}
+                        required
+                        placeholder="MM"
+                        maxLength="2"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">Yıl</label>
+                      <input
+                        type="text"
+                        name="expiryYear"
+                        value={cardData.expiryYear}
+                        onChange={handleCardInputChange}
+                        required
+                        placeholder="YYYY"
+                        maxLength="4"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-sm font-semibold text-gray-700 mb-2">CVV</label>
+                      <input
+                        type="text"
+                        name="cvc"
+                        value={cardData.cvc}
+                        onChange={handleCardInputChange}
+                        required
+                        placeholder="123"
+                        maxLength="3"
+                        className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-red-500 focus:border-transparent transition-all duration-200"
+                      />
+                    </div>
                   </div>
                 </div>
               </div>
