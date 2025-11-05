@@ -21,6 +21,7 @@ app.include_router(blog.router)
 app.include_router(projects.router)
 app.include_router(orders.router)
 app.include_router(contact.router)
+app.include_router(payment.router)
 
 # Admin routers
 app.include_router(admin_auth.router)
