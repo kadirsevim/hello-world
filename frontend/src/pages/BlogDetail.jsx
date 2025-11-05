@@ -54,8 +54,6 @@ const BlogDetail = () => {
     );
   }
 
-  const relatedPosts = blogPosts.filter(p => p.id !== post.id).slice(0, 3);
-
   return (
     <div className="min-h-screen bg-gray-50 pt-24 pb-20">
       <article className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
