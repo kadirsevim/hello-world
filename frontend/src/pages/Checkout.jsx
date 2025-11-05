@@ -428,10 +428,20 @@ const Checkout = () => {
 
               <button
                 type="submit"
-                className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg hover:shadow-red-500/50 flex items-center justify-center"
+                disabled={processing}
+                className="w-full py-4 bg-gradient-to-r from-red-600 to-red-700 text-white font-semibold rounded-lg hover:from-red-700 hover:to-red-800 transition-all duration-300 shadow-lg hover:shadow-red-500/50 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                <CheckCircle className="h-5 w-5 mr-2" />
-                Siparişi Tamamla
+                {processing ? (
+                  <>
+                    <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-white mr-2"></div>
+                    Ödeme İşleniyor...
+                  </>
+                ) : (
+                  <>
+                    <CheckCircle className="h-5 w-5 mr-2" />
+                    Ödemeyi Tamamla
+                  </>
+                )}
               </button>
             </form>
           </div>
