@@ -19,23 +19,33 @@ const Contact = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
-    // Simulate form submission
-    toast({
-      title: "Mesajınız Gönderildi!",
-      description: "En kısa sürede size dönüş yapacağız. Teşekkür ederiz!",
-    });
+    try {
+      // Send contact message via API
+      await createContact(formData);
 
-    // Reset form
-    setFormData({
-      name: '',
-      email: '',
-      phone: '',
-      subject: '',
-      message: ''
-    });
+      toast({
+        title: "Mesajınız Gönderildi!",
+        description: "En kısa sürede size dönüş yapacağız. Teşekkür ederiz!",
+      });
+
+      // Reset form
+      setFormData({
+        name: '',
+        email: '',
+        phone: '',
+        subject: '',
+        message: ''
+      });
+    } catch (error) {
+      console.error('Error sending contact:', error);
+      toast({
+        title: "Hata",
+        description: "Mesaj gönderilirken bir hata oluştu. Lütfen tekrar deneyin.",
+      });
+    }
   };
 
   return (
