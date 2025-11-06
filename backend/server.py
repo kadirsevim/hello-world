@@ -47,38 +47,16 @@ logger = logging.getLogger(__name__)
 
 @app.on_event("startup")
 async def startup_event():
-    """Initialize database with seed data on startup"""
+    """Initialize MySQL database on startup"""
     logger.info("Starting application...")
     
-    # Check if database is empty and seed if needed
     try:
-        product_count = await db.products.count_documents({})
+        # Initialize MySQL tables
+        await init_database()
+        logger.info("MySQL database tables initialized")
         
-        if product_count == 0:
-            logger.info("Database is empty. Seeding initial data...")
-            
-            # Seed categories
-            await db.categories.insert_many(seed_data.categories)
-            logger.info(f"Seeded {len(seed_data.categories)} categories")
-            
-            # Seed products
-            await db.products.insert_many(seed_data.products)
-            logger.info(f"Seeded {len(seed_data.products)} products")
-            
-            # Seed blog posts
-            await db.blog.insert_many(seed_data.blog_posts)
-            logger.info(f"Seeded {len(seed_data.blog_posts)} blog posts")
-            
-            # Seed projects
-            await db.projects.insert_many(seed_data.projects)
-            logger.info(f"Seeded {len(seed_data.projects)} projects")
-            
-            logger.info("Database seeding completed successfully!")
-        else:
-            logger.info(f"Database already has {product_count} products. Skipping seed.")
-            
     except Exception as e:
-        logger.error(f"Error during database seeding: {e}")
+        logger.error(f"Error during database initialization: {e}")
 
 @app.get("/api")
 async def root():
