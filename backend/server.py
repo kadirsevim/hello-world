@@ -68,5 +68,5 @@ async def root():
 
 @app.on_event("shutdown")
 async def shutdown_event():
-    await close_db()
+    await close_db_pool()
     logger.info("Application shutdown complete")
