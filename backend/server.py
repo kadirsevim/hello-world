@@ -4,9 +4,8 @@ from starlette.middleware.cors import CORSMiddleware
 import os
 import logging
 from pathlib import Path
-from database import close_db, db
+from database import close_db_pool, init_database
 from routes import products, categories, blog, projects, orders, contact, admin_auth, admin_dashboard, admin_products, admin_orders, admin_contacts, payment
-import seed_data
 
 ROOT_DIR = Path(__file__).parent
 load_dotenv(ROOT_DIR / '.env')
